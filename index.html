@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Just a moment...</title>
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #f7f4ef;
+      font-family: Georgia, serif;
+      color: #2c2c2c;
+      text-align: center;
+      padding: 2rem;
+    }
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 2px solid #d4c9b8;
+      border-top-color: #2c2c2c;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 2rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    h1 { font-size: 2rem; font-weight: 300; font-style: italic; margin-bottom: 0.75rem; }
+    p { font-size: 1rem; color: #888; }
+    .error { color: #a05050; font-style: italic; margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+  <div class="spinner"></div>
+  <h1>Just a moment...</h1>
+  <p>Preparing your programme access</p>
+  <p class="error" id="error-msg"></p>
+
+  <script>
+    var REWARD_FUNNEL_BASE = "https://rewardfunnel.app/thanks/72038b7d-50b1-11f1-832e-00505661b015";
+
+    var params = new URLSearchParams(window.location.search);
+    var email = params.get("email") || "";
+    var firstname = params.get("firstname") || "";
+    var surname = params.get("surname") || "";
+
+    if (!email) {
+      document.getElementById("error-msg").textContent = "Could not retrieve your details. Please contact support.";
+    } else {
+      var destination = REWARD_FUNNEL_BASE + "?email=" + encodeURIComponent(email) + "&firstname=" + encodeURIComponent(firstname) + "&surname=" + encodeURIComponent(surname);
+      setTimeout(function() { window.location.href = destination; }, 1500);
+    }
+  </script>
+</body>
+</html>

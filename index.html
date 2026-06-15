@@ -37,20 +37,26 @@
   <h1>Just a moment...</h1>
   <p>Preparing your programme access</p>
   <p class="error" id="error-msg"></p>
-
   <script>
     var REWARD_FUNNEL_BASE = "https://rewardfunnel.app/thanks/72038b7d-50b1-11f1-832e-00505661b015";
-
     var params = new URLSearchParams(window.location.search);
     var email = params.get("email") || "";
     var firstname = params.get("firstname") || "";
     var surname = params.get("surname") || "";
-
     if (!email) {
       document.getElementById("error-msg").textContent = "Could not retrieve your details. Please contact support.";
     } else {
       var destination = REWARD_FUNNEL_BASE + "?email=" + encodeURIComponent(email) + "&firstname=" + encodeURIComponent(firstname) + "&surname=" + encodeURIComponent(surname);
-      setTimeout(function() { window.location.href = destination; }, 1500);
+      
+      // Default wait time is 1.5 seconds (1500ms)
+      var delay = 1500; 
+      
+      // If it is an xtra.co.nz email, extend the wait to 3.5 seconds to bypass strict email security filters
+      if (email.toLowerCase().endsWith("xtra.co.nz")) {
+        delay = 3500;
+      }
+      
+      setTimeout(function() { window.location.href = destination; }, delay);
     }
   </script>
 </body>

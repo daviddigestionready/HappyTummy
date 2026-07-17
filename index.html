@@ -37,25 +37,53 @@
   <h1>Just a moment...</h1>
   <p>Preparing your programme access</p>
   <p class="error" id="error-msg"></p>
+
   <script>
-    var REWARD_FUNNEL_BASE = "https://rewardfunnel.app/thanks/72038b7d-50b1-11f1-832e-00505661b015";
+    // Configuration URLs
+    var REWARD_ENDPOINT = "https://rewardfunnel.app";
+    var THANKS_ENDPOINT_BASE = "https://rewardfunnel.app";
+
+    // Grab parameters from the URL
     var params = new URLSearchParams(window.location.search);
     var email = params.get("email") || "";
     var firstname = params.get("firstname") || "";
     var surname = params.get("surname") || "";
+
     if (!email) {
       document.getElementById("error-msg").textContent = "Could not retrieve your details. Please contact support.";
     } else {
-      var destination = REWARD_FUNNEL_BASE + "?email=" + encodeURIComponent(email) + "&firstname=" + encodeURIComponent(firstname) + "&surname=" + encodeURIComponent(surname);
+      // 1. Package data into the exact format GoHighLevel structures its webhook payloads
+      var ghlPayload = {
+        "contact": {
+          "email": email,
+          "first_name": firstname,
+          "last_name": surname
+        },
+        "first_name": firstname,
+        "last_name": surname,
+        "email": email
+      };
+
+      // 2. Fire the background POST webhook immediately using browser fetch
+      fetch(REWARD_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(ghlPayload),
+        mode: "no-cors" // Bypasses browser security restrictions to guarantee delivery
+      }).catch(function(err) {
+        console.log("Background sync initiated.");
+      });
+
+      // 3. Prepare the final destination redirect link
+      var destination = THANKS_ENDPOINT_BASE + "?email=" + encodeURIComponent(email) + "&firstname=" + encodeURIComponent(firstname) + "&surname=" + encodeURIComponent(surname);
       
-      // Default wait time is 1.5 seconds (1500ms)
-      var delay = 1500; 
-      
-      // If it is an xtra.co.nz email, extend the wait to 3.5 seconds to bypass strict email security filters
+      // Keep your smart New Zealand email provider delay logic
+      var delay = 2500; 
       if (email.toLowerCase().endsWith("xtra.co.nz")) {
-        delay = 3500;
+        delay = 4500;
       }
       
+      // 4. Redirect to the app after the brief pause
       setTimeout(function() { window.location.href = destination; }, delay);
     }
   </script>

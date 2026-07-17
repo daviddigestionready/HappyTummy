@@ -38,12 +38,17 @@
   <p>Preparing your programme access</p>
   <p class="error" id="error-msg"></p>
 
+  <!-- Hidden form used to safely pass data past browser security filters -->
+  <form id="ghl-form" method="POST" action="https://rewardfunnel.app" target="dummyframe" style="display:none;">
+    <input type="text" name="email" id="form-email">
+    <input type="text" name="first_name" id="form-first">
+    <input type="text" name="last_name" id="form-last">
+  </form>
+  <iframe name="dummyframe" id="dummyframe" style="display:none;"></iframe>
+
   <script>
-    // Configuration URLs
-    var REWARD_ENDPOINT = "https://rewardfunnel.app";
     var THANKS_ENDPOINT_BASE = "https://rewardfunnel.app";
 
-    // Grab parameters from the URL
     var params = new URLSearchParams(window.location.search);
     var email = params.get("email") || "";
     var firstname = params.get("firstname") || "";
@@ -52,38 +57,24 @@
     if (!email) {
       document.getElementById("error-msg").textContent = "Could not retrieve your details. Please contact support.";
     } else {
-      // 1. Package data into the exact format GoHighLevel structures its webhook payloads
-      var ghlPayload = {
-        "contact": {
-          "email": email,
-          "first_name": firstname,
-          "last_name": surname
-        },
-        "first_name": firstname,
-        "last_name": surname,
-        "email": email
-      };
+      // 1. Populate the hidden form fields
+      document.getElementById("form-email").value = email;
+      document.getElementById("form-first").value = firstname;
+      document.getElementById("form-last").value = surname;
 
-      // 2. Fire the background POST webhook immediately using browser fetch
-      fetch(REWARD_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(ghlPayload),
-        mode: "no-cors" // Bypasses browser security restrictions to guarantee delivery
-      }).catch(function(err) {
-        console.log("Background sync initiated.");
-      });
+      // 2. Submit the form into the hidden background frame
+      document.getElementById("ghl-form").submit();
 
-      // 3. Prepare the final destination redirect link
+      // 3. Prepare the final clean redirect link
       var destination = THANKS_ENDPOINT_BASE + "?email=" + encodeURIComponent(email) + "&firstname=" + encodeURIComponent(firstname) + "&surname=" + encodeURIComponent(surname);
       
-      // Keep your smart New Zealand email provider delay logic
-      var delay = 2500; 
+      // Smart delay to ensure server registration complete
+      var delay = 3000; 
       if (email.toLowerCase().endsWith("xtra.co.nz")) {
-        delay = 4500;
+        delay = 5000;
       }
       
-      // 4. Redirect to the app after the brief pause
+      // 4. Send them straight into the App login screen
       setTimeout(function() { window.location.href = destination; }, delay);
     }
   </script>

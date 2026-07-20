@@ -38,17 +38,8 @@
   <p>Preparing your programme access</p>
   <p class="error" id="error-msg"></p>
 
-  <!-- Hidden form used to safely pass data past browser security filters -->
-  <form id="ghl-form" method="POST" action="https://rewardfunnel.app" target="dummyframe" style="display:none;">
-    <input type="text" name="email" id="form-email">
-    <input type="text" name="first_name" id="form-first">
-    <input type="text" name="last_name" id="form-last">
-  </form>
-  <iframe name="dummyframe" id="dummyframe" style="display:none;"></iframe>
-
   <script>
-    var THANKS_ENDPOINT_BASE = "https://rewardfunnel.app";
-
+    // Grab URL parameters passed from Systeme.io
     var params = new URLSearchParams(window.location.search);
     var email = params.get("email") || "";
     var firstname = params.get("firstname") || "";
@@ -57,24 +48,16 @@
     if (!email) {
       document.getElementById("error-msg").textContent = "Could not retrieve your details. Please contact support.";
     } else {
-      // 1. Populate the hidden form fields
-      document.getElementById("form-email").value = email;
-      document.getElementById("form-first").value = firstname;
-      document.getElementById("form-last").value = surname;
-
-      // 2. Submit the form into the hidden background frame
-      document.getElementById("ghl-form").submit();
-
-      // 3. Prepare the final clean redirect link
-      var destination = THANKS_ENDPOINT_BASE + "?email=" + encodeURIComponent(email) + "&firstname=" + encodeURIComponent(firstname) + "&surname=" + encodeURIComponent(surname);
+      // Direct link to your custom Reward Funnel registration endpoint
+      var destination = "https://rewardfunnel.app" + encodeURIComponent(email) + "&firstname=" + encodeURIComponent(firstname) + "&surname=" + encodeURIComponent(surname);
       
-      // Smart delay to ensure server registration complete
-      var delay = 3000; 
+      // Give the background n8n webhook 2.5 seconds to finish its job first
+      var delay = 2500; 
       if (email.toLowerCase().endsWith("xtra.co.nz")) {
-        delay = 5000;
+        delay = 4500;
       }
       
-      // 4. Send them straight into the App login screen
+      // Send the student straight to their personal setup page
       setTimeout(function() { window.location.href = destination; }, delay);
     }
   </script>
